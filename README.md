@@ -8,7 +8,7 @@ A web service redeploys and moves on. An iOS app can't. Every App Store build yo
 
 `ContractGateway` is the server-side layer that sits between **every build you ever shipped** and the provider API. It decides which provider version each request goes to, rewrites it with explicit rules, refuses to send anything it knows the vendor will reject, and keeps a per-build ledger of what each binary still depends on. Together with a contract-test matrix over recorded requests from every build, that ledger answers the question a lead actually gets asked: *"Can we turn the old version off yet?"*
 
-> Demo app: (added after the companion repo is pushed — see below)
+> **Demo app:** [**ai-contract-gateway-demo-app**](https://github.com/rajatslakhina/ai-contract-gateway-demo-app). It's a separate Xcode project that consumes this package as a remote, version-pinned dependency (`1.0.0`, with the revision locked in `Package.resolved`) and replays six shipped builds through the gateway. It has been run on an iPhone 18 Pro simulator, and the screenshots are in its README.
 
 ---
 
@@ -161,4 +161,8 @@ What has actually happened, stated separately:
 
 - **Built and tested locally:** Swift 6.0.3 on Linux (x86_64). Clean build (`rm -rf .build`) with `-Xswiftc -warnings-as-errors`, 0 warnings. `swift test -Xswiftc -warnings-as-errors`: **69 tests, 0 failures**.
 - **The tests include deliberately broken implementations** that must fail the checks: a rule that rewrites silently, a rule that touches `2023-06-01`, a non-idempotent rule, a sampling rule that forgets `top_k`, and a rule chain missing the relocation rule. The reentrancy test was also checked against a mutant that reads the live policy after the `await` (not checked in).
-- **CI:** pending. The results of the first GitHub Actions run are recorded here once it reports. The workflow has a Linux job (build + test, warnings as errors) and a `macos-15` job (build + test, then `xcodebuild` for `generic/platform=iOS Simulator`, which compiles `ContractGatewayUI`).
+- **CI ([Actions](https://github.com/rajatslakhina/ai-contract-gateway-kit/actions)), green on `v1.0.0`:**
+  - **Linux** (`swift:6.0` container): build and test with warnings as errors. **69 tests, 0 failures.**
+  - **macOS 15** (Xcode 16.4, Swift 6.1.2): build and test with warnings as errors (**69 tests, 0 failures**). It then runs `xcodebuild` for `generic/platform=iOS Simulator` with `SWIFT_TREAT_WARNINGS_AS_ERRORS=YES`, which compiles both modules, `ContractGatewayUI` included.
+- **Run on a simulator:** the companion demo app resolved this package from GitHub at `1.0.0`. It was built and run on an **iPhone 18 Pro simulator (iOS 27.0)** on 26 Oct 2026. The dashboard rendered, the toggles changed outcomes as documented, and the screenshots are in the [demo README](https://github.com/rajatslakhina/ai-contract-gateway-demo-app#screenshots).
+- **Independent review:** 3 rounds by a separate model instance before publication. The round-3 fixes were applied but not re-reviewed. After round 3, the SwiftUI views were restructured into smaller views for compile safety. That change is covered by CI, not by a further review.
