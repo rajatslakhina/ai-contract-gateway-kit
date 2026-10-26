@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     container: swift:6.0
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build
         run: swift build -Xswiftc -warnings-as-errors
       - name: Test
@@ -22,7 +22,7 @@ jobs:
     name: macOS 15 · build + test, and iOS Simulator build (incl. SwiftUI module)
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Toolchain
         run: swift --version && xcodebuild -version
       - name: Build (macOS)
